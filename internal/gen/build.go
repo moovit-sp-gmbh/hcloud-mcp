@@ -43,6 +43,9 @@ func Build(ctx context.Context, cfg *Config) (*toolspec.Catalog, error) {
 		if err != nil {
 			return nil, fmt.Errorf("service %q (%v): %w", svc.Name, loc, err)
 		}
+		if err := checkPrefix(svc.Prefix, doc.Paths.InMatchingOrder()); err != nil {
+			return nil, fmt.Errorf("service %q: %w", svc.Name, err)
+		}
 		tools, err := buildService(svc, doc, usedNames)
 		if err != nil {
 			return nil, fmt.Errorf("service %q: %w", svc.Name, err)
@@ -56,6 +59,24 @@ func Build(ctx context.Context, cfg *Config) (*toolspec.Catalog, error) {
 		fmt.Fprintf(os.Stderr, "%s: %d tools from %s\n", svc.Name, len(tools), loc)
 	}
 	return cat, nil
+}
+
+// checkPrefix rejects a prefix whose last segment is repeated as the first
+// segment of an operation path, e.g. prefix /api/account/v1 with path
+// /v1/user would call /api/account/v1/v1/user.
+func checkPrefix(prefix string, paths []string) error {
+	last := prefix[strings.LastIndex(prefix, "/")+1:]
+	if last == "" {
+		return nil
+	}
+	for _, p := range paths {
+		first, _, _ := strings.Cut(strings.TrimPrefix(p, "/"), "/")
+		if first == last {
+			return fmt.Errorf("prefix %q already ends in %q and path %q starts with it, requests would go to %s%s; drop /%s from the prefix in services.yaml",
+				prefix, last, p, prefix, p, last)
+		}
+	}
+	return nil
 }
 
 func buildService(svc Service, doc *openapi3.T, usedNames map[string]bool) ([]toolspec.Tool, error) {

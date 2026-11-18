@@ -16,15 +16,15 @@ specBaseUrl: ""
 
 services:
   - name: cosmo
-    prefix: /api/cosmo/v1
+    prefix: /api/cosmo
     spec: /api/cosmo/v1/docs/spec.yaml
 
   - name: account
-    prefix: /api/account/v1
+    prefix: /api/account
     spec: /api/account/v1/docs/spec.yaml
 
   - name: high5
-    prefix: /api/high5/v1
+    prefix: /api/high5
     spec: /api/high5/v1/docs/spec.yaml
 
 # Per-service options:
