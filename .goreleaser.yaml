@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+#
+# Builds everything for a release:
+#   - regenerates the tool catalog from the live OpenAPI specs (needs HCLOUD_API_SERVER)
+#   - CGO-free binaries for darwin/linux/windows on amd64 + arm64, plus a macOS universal binary
+#   - tar.gz / zip archives
+#   - .mcpb bundles (one per os/arch + one universal), attached to the release
+#   - multi-arch docker image on ghcr.io
+#
+# Local dry run: make snapshot   (= goreleaser release --snapshot --clean)
+
+version: 2
+project_name: hcloud-mcp
+
+before:
+  hooks:
+    - go mod tidy
+    - sh scripts/generate-catalog.sh
+
+builds:
+  - id: hcloud-mcp
+    main: .
+    binary: hcloud-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+universal_binaries:
+  - id: hcloud-mcp
+    replace: false
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    hooks:
+      # Runs once every platform has been built: package the .mcpb bundles.
+      post:
+        - cmd: go run ./cmd/mcpb -version {{ .Version }} -dist dist -out dist/mcpb
+          output: true
+
+archives:
+  - formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  extra_files:
+    - glob: ./dist/mcpb/*.mcpb
+
+dockers_v2:
+  - ids: [hcloud-mcp]
+    images:
+      - ghcr.io/moovit-sp-gmbh/hcloud-mcp
+    tags:
+      - "v{{ .Version }}"
+      # Tag builds run on a detached HEAD, so .Branch is never "main".
+      # Stable (non -dev-) tags are cut from main; tag those as latest.
+      - "{{- if not (contains .Tag \"-dev-\") }}latest{{ end }}"
+    dockerfile: Dockerfile
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.created: "{{ .Date }}"
+
+release:
+  mode: replace
+  draft: true
+  extra_files:
+    - glob: ./dist/mcpb/*.mcpb
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
