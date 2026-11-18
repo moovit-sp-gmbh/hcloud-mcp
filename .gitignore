@@ -1,0 +1,7 @@
+.DS_Store
+/build/
+/dist/
+*.tmp
+# generated at build time from the OpenAPI specs (make generate)
+/internal/catalog/generated/*
+!/internal/catalog/generated/.gitkeep

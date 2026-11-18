@@ -1,0 +1,32 @@
+# Microservices compiled into hcloud-mcp.
+#
+# Each entry becomes a group of MCP tools named "<name>_<operationId>".
+# At runtime every request goes to:  <HCLOUD_API_SERVER><prefix><operation path>
+#
+# spec may be
+#   - a local file, relative to this file            (specs/account.yaml)
+#   - an absolute URL                                (https://…/openapi.json)
+#   - a path resolved against the spec base URL      (/api/account/v1/docs/spec.yaml)
+#
+# Spec base URL, first one set wins:
+#   SPEC_BASE_URL env  >  specBaseUrl below  >  HCLOUD_API_SERVER env
+# Spec download token (sent as Bearer), first one set wins:
+#   SPEC_TOKEN env  >  HCLOUD_API_TOKEN env
+specBaseUrl: ""
+
+services:
+  - name: cosmo
+    prefix: /api/cosmo/v1
+    spec: /api/cosmo/v1/docs/spec.yaml
+
+  - name: account
+    prefix: /api/account/v1
+    spec: /api/account/v1/docs/spec.yaml
+
+  - name: high5
+    prefix: /api/high5/v1
+    spec: /api/high5/v1/docs/spec.yaml
+
+# Per-service options:
+#   includeDeprecated: true                         # also expose deprecated operations
+#   exclude: [someOperationId, "POST /internal/x"]  # skip operations
