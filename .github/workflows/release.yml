@@ -106,19 +106,26 @@ jobs:
       packages: write # push ghcr.io/moovit-sp-gmbh/hcloud-mcp
 
     env:
-      # Used by scripts/generate-catalog.sh (goreleaser before hook) to fetch
-      # the OpenAPI specs: <HCLOUD_API_SERVER>/api/<service>/v1/docs/spec.yaml
-      HCLOUD_API_SERVER: ${{ vars.HCLOUD_API_SERVER }}
       # Optional: bearer token for the spec endpoints, if they are protected.
       SPEC_TOKEN: ${{ secrets.SPEC_TOKEN }}
 
     steps:
-      - name: Check release configuration
+      # The OpenAPI specs (and thus the generated tools) come from the
+      # environment matching the tag:
+      #   v1.2.3-dev-1  -> dev
+      #   v1.2.3        -> production
+      # scripts/generate-catalog.sh (goreleaser before hook) fetches
+      # <HCLOUD_API_SERVER>/api/<service>/v1/docs/spec.yaml
+      - name: Select API server for this tag
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          if [ -z "$HCLOUD_API_SERVER" ]; then
-            echo "::error::Repository variable HCLOUD_API_SERVER is not set; it is needed to generate the tool catalog from the OpenAPI specs."
-            exit 1
-          fi
+          case "$TAG" in
+            *-dev-*) server="https://eu-dev-1.app.helmut.cloud" ;;
+            *)       server="https://eu-central-1.app.helmut.cloud" ;;
+          esac
+          echo "HCLOUD_API_SERVER=$server" >> "$GITHUB_ENV"
+          echo "Tag $TAG: generating tools from $server"
 
       - uses: actions/checkout@v7
         with:
@@ -153,13 +160,14 @@ jobs:
           echo "Previous stable tag: $PREVIOUS_TAG"
 
       # Regenerates the catalog, builds binaries, archives, .mcpb bundles and
-      # the docker image, then creates a draft release with everything attached.
+      # the docker image, then creates a release with everything attached.
+      # -dev- tags become a draft release, all other tags are published directly.
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean
+          args: release --clean ${{ contains(github.ref_name, '-dev-') && '--draft' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

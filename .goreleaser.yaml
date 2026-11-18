@@ -82,7 +82,9 @@ dockers_v2:
 
 release:
   mode: replace
-  draft: true
+  # Published immediately. The CI workflow passes --draft for -dev- tags
+  # (release.draft does not support templates).
+  draft: false
   extra_files:
     - glob: ./dist/mcpb/*.mcpb
 
