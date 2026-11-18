@@ -165,11 +165,11 @@ func manifest(version, command string, platforms []string, overrides map[string]
 	return map[string]any{
 		"manifest_version": "0.3",
 		"name":             name,
-		"display_name":     "HCloud",
+		"display_name":     "helmut.cloud",
 		"version":          version,
-		"description":      "Access the HCloud API from Claude.",
-		"long_description": "Exposes the HCloud microservice REST APIs as MCP tools, generated from their OpenAPI specifications.",
-		"author":           map[string]string{"name": "moovit SP GmbH"},
+		"description":      "Access the helmut.cloud API from Claude.",
+		"long_description": "Exposes the helmut.cloud microservice REST APIs as MCP tools, generated from their OpenAPI specifications.",
+		"author":           map[string]string{"name": "MoovIT SP GmbH"},
 		"server": map[string]any{
 			"type":        "binary",
 			"entry_point": command[len("${__dirname}/"):],
@@ -182,13 +182,13 @@ func manifest(version, command string, platforms []string, overrides map[string]
 			"api_server": map[string]any{
 				"type":        "string",
 				"title":       "API server",
-				"description": "Base URL of the HCloud API, e.g. https://api.example.com",
+				"description": "Base URL of the helmut.cloud API, e.g. https://eu-central-1.app.helmut.cloud",
 				"required":    true,
 			},
 			"api_token": map[string]any{
 				"type":        "string",
 				"title":       "API token",
-				"description": "Token used to authenticate against the HCloud API",
+				"description": "Token used to authenticate against the helmut.cloud API",
 				"sensitive":   true,
 				"required":    true,
 			},

@@ -82,6 +82,17 @@ func TestToolCallsReachAPI(t *testing.T) {
 		t.Fatalf("unexpected result %q", text)
 	}
 
+	// A body sent as a JSON string (some clients do this) is not encoded twice.
+	res, err = cs.CallTool(ctx, &mcp.CallToolParams{Name: "svc_update", Arguments: map[string]any{
+		"id": "1", "body": ` {"filters": []}`,
+	}})
+	if err != nil || res.IsError {
+		t.Fatalf("CallTool: %v %+v", err, res)
+	}
+	if got.body != `{"filters": []}` {
+		t.Fatalf("string body re-encoded: %q", got.body)
+	}
+
 	// Missing required body is rejected before any request.
 	res, _ = cs.CallTool(ctx, &mcp.CallToolParams{Name: "svc_update", Arguments: map[string]any{"id": "1"}})
 	if !res.IsError {

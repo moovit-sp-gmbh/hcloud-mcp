@@ -1,5 +1,5 @@
 // Package server builds the MCP server from the embedded tool catalog and
-// forwards tool calls as HTTP requests to the HCloud API server.
+// forwards tool calls as HTTP requests to the helmut.cloud API server.
 package server
 
 import (
@@ -88,9 +88,9 @@ func New(cfg Config, cat *toolspec.Catalog) (*mcp.Server, error) {
 	for _, s := range cat.Services {
 		services = append(services, fmt.Sprintf("%s (%s %s)", s.Name, s.Title, s.APIVersion))
 	}
-	srv := mcp.NewServer(&mcp.Implementation{Name: "hcloud-mcp", Title: "HCloud", Version: cfg.Version}, &mcp.ServerOptions{
+	srv := mcp.NewServer(&mcp.Implementation{Name: "hcloud-mcp", Title: "helmut.cloud", Version: cfg.Version}, &mcp.ServerOptions{
 		Logger: cfg.Logger,
-		Instructions: "Tools map 1:1 to HCloud REST API operations; tool names are prefixed with the microservice name. " +
+		Instructions: "Tools map 1:1 to helmut.cloud REST API operations; tool names are prefixed with the microservice name. " +
 			"Path, query and header parameters are top-level arguments, the request body goes into the \"body\" argument. " +
 			"Services: " + strings.Join(services, ", ") + ".",
 	})

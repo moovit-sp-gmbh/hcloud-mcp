@@ -13,7 +13,7 @@ LABEL org.opencontainers.image.title="hcloud-mcp"
 ARG TARGETPLATFORM
 COPY --chmod=0755 ${TARGETPLATFORM}/hcloud-mcp /usr/local/bin/hcloud-mcp
 
-# HCLOUD_API_SERVER  required: base URL of the HCloud API
+# HCLOUD_API_SERVER  required: base URL of the helmut.cloud API
 # HCLOUD_API_TOKEN   required in token mode "env" (pass at runtime, never bake in)
 # apiTokenMode       "env" (default) or "external" (each client sends its own token)
 # ADDR               listen address, also used by the healthcheck

@@ -1,6 +1,6 @@
 # hcloud-mcp
 
-An MCP server for the HCloud API. Its tools are generated at build time from the
+An MCP server for the helmut.cloud API. Its tools are generated at build time from the
 OpenAPI specs of the microservices listed in [services.yaml](services.yaml).
 Builds are CGO-free for macOS, Linux and Windows on amd64 and arm64, and are
 packaged as MCP Bundles (`.mcpb`).
@@ -36,7 +36,7 @@ HCLOUD_API_SERVER=https://api.example.com hcloud-mcp http --token-mode external
 Client config example (`.mcp.json` / Claude Code):
 
 ```json
-{ "mcpServers": { "hcloud": {
+{ "mcpServers": { "helmut-cloud": {
     "type": "http",
     "url": "https://mcp.example.com/mcp",
     "headers": { "Authorization": "Bearer ${HCLOUD_TOKEN}" } } } }

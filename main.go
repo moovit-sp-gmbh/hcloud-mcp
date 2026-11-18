@@ -1,4 +1,4 @@
-// Command hcloud-mcp is an MCP server for the HCloud API.
+// Command hcloud-mcp is an MCP server for the helmut.cloud API.
 package main
 
 import (

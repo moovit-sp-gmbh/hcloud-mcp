@@ -257,7 +257,14 @@ func (in *toolInput) addBody(rb *openapi3.RequestBody) *toolspec.Body {
 	}
 	schema := map[string]any{}
 	if mt != nil && mt.Schema != nil {
-		schema = in.sb.convert(mt.Schema)
+		sr := mt.Schema
+		if sr.Ref != "" && sr.Value != nil {
+			// Inline the top-level component: many MCP clients do not follow
+			// $ref and would otherwise not know the body is an object (and
+			// send it as a JSON string). Nested refs stay in $defs.
+			sr = &openapi3.SchemaRef{Value: sr.Value}
+		}
+		schema = in.sb.convert(sr)
 	}
 	if _, has := schema["description"]; !has {
 		desc := rb.Description

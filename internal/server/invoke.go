@@ -226,6 +226,13 @@ func encodeBody(contentType string, v any) (io.Reader, string, error) {
 	ct := strings.ToLower(contentType)
 	switch {
 	case strings.Contains(ct, "json"):
+		// Some clients send an object/array body as a JSON string; pass it
+		// through instead of encoding it a second time.
+		if str, ok := v.(string); ok {
+			if t := strings.TrimSpace(str); (strings.HasPrefix(t, "{") || strings.HasPrefix(t, "[")) && json.Valid([]byte(t)) {
+				return strings.NewReader(t), contentType, nil
+			}
+		}
 		b, err := json.Marshal(v)
 		return bytes.NewReader(b), contentType, err
 	case ct == "application/x-www-form-urlencoded":

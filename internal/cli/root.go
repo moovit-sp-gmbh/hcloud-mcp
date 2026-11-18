@@ -48,11 +48,11 @@ func Execute(version string) error {
 	opts := &options{}
 	root := &cobra.Command{
 		Use:   "hcloud-mcp",
-		Short: "MCP server for the HCloud API, generated from its OpenAPI specs",
-		Long: `hcloud-mcp exposes the HCloud REST API as MCP tools.
+		Short: "MCP server for the helmut.cloud API, generated from its OpenAPI specs",
+		Long: `hcloud-mcp exposes the helmut.cloud REST API as MCP tools.
 
 Configuration (flags override environment variables):
-  HCLOUD_API_SERVER  base URL of the HCloud API   (flag: --api-server)
+  HCLOUD_API_SERVER  base URL of the helmut.cloud API   (flag: --api-server)
   HCLOUD_API_TOKEN   token used to authenticate   (flag: --api-token)
 
 Token modes (--token-mode, env apiTokenMode):
@@ -65,8 +65,8 @@ Token modes (--token-mode, env apiTokenMode):
 		SilenceErrors: true,
 	}
 	f := root.PersistentFlags()
-	f.StringVar(&opts.apiServer, "api-server", env("HCLOUD_API_SERVER"), "HCloud API base URL (env HCLOUD_API_SERVER)")
-	f.StringVar(&opts.apiToken, "api-token", "", "HCloud API token (env HCLOUD_API_TOKEN; prefer the env var, flags are visible in process lists)")
+	f.StringVar(&opts.apiServer, "api-server", env("HCLOUD_API_SERVER"), "helmut.cloud API base URL (env HCLOUD_API_SERVER)")
+	f.StringVar(&opts.apiToken, "api-token", "", "helmut.cloud API token (env HCLOUD_API_TOKEN; prefer the env var, flags are visible in process lists)")
 	f.StringVar(&opts.tokenMode, "token-mode", envOr(server.TokenModeEnv, "apiTokenMode", "API_TOKEN_MODE"), "where the API token comes from: env or external (env apiTokenMode)")
 	f.StringVar(&opts.tokenHdr, "token-header", envOr("Authorization", "apiTokenHeader", "API_TOKEN_HEADER"), "incoming MCP request header carrying the client token in external mode (env apiTokenHeader)")
 	f.StringVar(&opts.authHeader, "auth-header", envOr("Authorization", "apiAuthHeader", "API_AUTH_HEADER"), "header that carries the token (env apiAuthHeader)")
